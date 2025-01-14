@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Whycloud</title>
+        <link rel="stylesheet" href="static/main.css">
+    </head>
+    <body>
+        <table id="cloud">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+        <script src="/static/scripts/dom.js"></script>
+        <script>
+            const item = new DomFile([
+                "Doc",
+                "Important",
+                "1 mb",
+                "14.1.2025"
+            ])
+            item.MakeDom("cloud")
+        </script>
+    </body>
+</html>
