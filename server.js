@@ -26,5 +26,5 @@ app.get("/donew", (req, res) => {
 });
 
 app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`);
+	console.log(`Cloud listening on port ${port}`);
 });
