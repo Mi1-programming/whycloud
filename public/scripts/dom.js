@@ -1,5 +1,6 @@
 class DomFile {
-	constructor(props) {
+	constructor(id, props) {
+		this.id = id;
 		this.props = props;
 	}
 	MakeDom(parentId) {
@@ -17,9 +18,16 @@ class DomFile {
 
 		const down = document.createElement("button");
 		down.innerText = "Download";
+		down.addEventListener("click", () => {
+			console.log(`Download of ${this.id} started!`);
+		});
 		container.appendChild(down);
+
 		const del = document.createElement("button");
 		del.innerText = "Delete";
+		del.addEventListener("click", () => {
+			location.assign(`delete?id=${this.id}`);
+		});
 		container.appendChild(del);
 
 		controls.appendChild(container);

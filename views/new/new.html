@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Whycloud - New</title>
+        <link rel="stylesheet" href="static/main.css">
+    </head>
+    <body>
+        <form action="donew">
+
+            <div class="vflex gap16">
+                <div class="hflex gap8">
+                    <label for="name">Name</label>
+                    <input id="name" type="text">
+                </div>
+                <div class="hflex gap8">
+                    <label for="desc">Description</label>
+                    <input id="desc" type="text">
+                </div>
+                <div class="hflex gap8">
+                    <label for="upload">File</label>
+                    <input id="upload" type="file" multiple="true">
+                </div>
+                <div class="hflex gap8">
+                    <button type="submit">Upload</button>
+                    <button type="button" onclick="location.assign('..')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </body>
+</html>

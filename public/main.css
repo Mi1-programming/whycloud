@@ -6,9 +6,11 @@
 body {
     padding: 8px;
 }
+button {
+    padding: 4px;
+}
 table {
     border-collapse: collapse;
-    table-layout: fixed;
 }
 td, th, tr {
     padding: 4px;
@@ -18,4 +20,25 @@ td, tr {
 }
 tr:nth-child(odd) {
     background-color: whitesmoke;
+}
+
+.vflex {
+    display: flex;
+    flex-direction: column;
+}
+.hflex {
+    display: flex;
+    flex-direction: row;
+}
+.fill {
+    flex: 1;
+}
+.gap8 {
+    gap: 8px;
+}
+.gap16 {
+    gap: 16px;
+}
+.gap32 {
+    gap: 32px;
 }
