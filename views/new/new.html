@@ -1,30 +1,63 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Whycloud - New</title>
-        <link rel="stylesheet" href="static/main.css">
-    </head>
-    <body>
-        <form action="donew">
+	<head>
+		<title>Whycloud - New</title>
+		<link rel="stylesheet" href="static/main.css" />
+	</head>
+	<body>
+		<div class="vflex gap16">
+			<div class="hflex gap8">
+				<label for="upload">File</label>
+				<input id="upload" type="file" />
+			</div>
+			<div class="hflex gap8">
+				<label for="desc">Description</label>
+				<input id="desc" type="text" />
+			</div>
+			<div class="hflex gap8">
+				<button id="submit">Upload</button>
+				<button type="button" onclick="location.assign('..')">Cancel</button>
+			</div>
+		</div>
+		<script type="module">
+			import fileJS from "/static/scripts/file.js";
 
-            <div class="vflex gap16">
-                <div class="hflex gap8">
-                    <label for="name">Name</label>
-                    <input id="name" type="text">
-                </div>
-                <div class="hflex gap8">
-                    <label for="desc">Description</label>
-                    <input id="desc" type="text">
-                </div>
-                <div class="hflex gap8">
-                    <label for="upload">File</label>
-                    <input id="upload" type="file" multiple="true">
-                </div>
-                <div class="hflex gap8">
-                    <button type="submit">Upload</button>
-                    <button type="button" onclick="location.assign('..')">Cancel</button>
-                </div>
-            </div>
-        </form>
-    </body>
+			const submit = document.getElementById("submit");
+			const desc = document.getElementById("desc");
+			const upload = document.getElementById("upload");
+
+			// https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa
+
+			function ToBase64(data) {
+				const bytes = new TextEncoder().encode(data)
+				const binString = Array.from(bytes, (byte) =>
+					String.fromCodePoint(byte),
+				).join("");
+				return btoa(binString);
+			}
+
+			submit.addEventListener("click", (e) => {
+				const file = upload.files[0];
+				fileJS.Read(file, (data) => {
+
+					// Define the json
+					const newBody = {
+						name: file.name,
+						file: data,
+						desc: desc.value
+					}
+					// Encode all data
+					for (const [key, value] of Object.entries(newBody)) {
+						newBody[key] = ToBase64(value)
+					}
+					// Make the object sendable
+					const stringBody = JSON.stringify(newBody)
+
+					fetch("/donew", { method: "POST", body: stringBody, headers: {
+						"Content-Type": "application/json"
+					}});
+				});
+			});
+		</script>
+	</body>
 </html>

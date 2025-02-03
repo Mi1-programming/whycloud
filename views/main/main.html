@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Whycloud</title>
-        <link rel="stylesheet" href="static/main.css">
-    </head>
-    <body>
-        <div class="vflex gap16">
-            <div class="hflex">
-                <button onclick="location.assign('new')">Upload</button>
-            </div>
-            <table id="cloud">
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Size</th>
-                    <th>Uploaded</th>
-                    <th>Actions</th>
-                </tr>
-            </table>
-        </div>
-        <script src="/static/scripts/dom.js"></script>
-        <script>
-            const item = new DomFile(
-            1, [
-                "Doc",
-                "Important",
-                "1 mb",
-                "14.1.2025"
-            ])
-            item.MakeDom("cloud")
-            item.MakeDom("cloud")
-            item.MakeDom("cloud")
-            item.MakeDom("cloud")
-            item.MakeDom("cloud")
-        </script>
-    </body>
+	<head>
+		<title>Whycloud</title>
+		<link rel="stylesheet" href="static/main.css" />
+	</head>
+	<body>
+		<div class="vflex gap16">
+			<div class="hflex">
+				<button onclick="location.assign('new')">Upload</button>
+			</div>
+			<table id="cloud">
+				<tr>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Size</th>
+					<th>Uploaded</th>
+					<th>Actions</th>
+				</tr>
+			</table>
+		</div>
+		<script type="module">
+			import dom from "/static/scripts/dom.js";
+
+			const page = await fetch("/getPage");
+			const body = await page.text()
+			console.log(body)
+
+			const item = new dom.File(1, ["Doc", "Important", "1 mb", "14.1.2025"]);
+			item.MakeDom("cloud");
+			item.MakeDom("cloud");
+			item.MakeDom("cloud");
+			item.MakeDom("cloud");
+			item.MakeDom("cloud");
+		</script>
+	</body>
 </html>

@@ -16,6 +16,13 @@ class DomFile {
 		const controls = document.createElement("td");
 		const container = document.createElement("div");
 
+		const edit = document.createElement("button");
+		edit.innerText = "Edit";
+		edit.addEventListener("click", () => {
+			location.assign(`edit?id=${this.id}`);
+		});
+		container.appendChild(edit);
+
 		const down = document.createElement("button");
 		down.innerText = "Download";
 		down.addEventListener("click", () => {
@@ -34,3 +41,6 @@ class DomFile {
 		newRow.appendChild(controls);
 	}
 }
+export default {
+	File: DomFile,
+};
