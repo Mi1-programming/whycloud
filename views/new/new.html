@@ -16,7 +16,7 @@
 			</div>
 			<div class="hflex gap8">
 				<button id="submit">Upload</button>
-				<button type="button" onclick="location.assign('..')">Cancel</button>
+				<button onclick="location.assign('..')">Cancel</button>
 			</div>
 		</div>
 		<script type="module">
@@ -38,7 +38,7 @@
 
 			submit.addEventListener("click", (e) => {
 				const file = upload.files[0];
-				fileJS.Read(file, (data) => {
+				fileJS.Read(file, async (data) => {
 
 					// Define the json
 					const newBody = {
@@ -53,9 +53,11 @@
 					// Make the object sendable
 					const stringBody = JSON.stringify(newBody)
 
-					fetch("/donew", { method: "POST", body: stringBody, headers: {
+					await fetch("/donew", { method: "POST", body: stringBody, headers: {
 						"Content-Type": "application/json"
 					}});
+
+					location.assign("..")
 				});
 			});
 		</script>

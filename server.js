@@ -28,8 +28,12 @@ app.get("/getPage", async (req, res) => {
 			const data = await fs.promises.readFile(`${fileDir}/${file}`, "ascii");
 			const jData = JSON.parse(data);
 			fileList.push({
-				name: jData.name,
-				desc: jData.desc,
+				id: jData.id,
+				uploaded: jData.uploaded,
+				user: {
+					name: jData.name,
+					desc: jData.desc,
+				},
 			});
 		}
 		const fileString = JSON.stringify(fileList);
@@ -39,7 +43,15 @@ app.get("/getPage", async (req, res) => {
 
 app.post("/dodel", (req, res) => {
 	console.log("deleted!");
-	res.redirect("/");
+	fs.writeFile(
+		path.join(__dirname, `/cloud/files/${jIdData.files}.json`),
+		newFile,
+		{ flag: "wx" },
+		(err) => {
+			if (err) console.error(err);
+		}
+	);
+	res.end();
 });
 app.post("/donew", async (req, res) => {
 	await fs.readFile(cloudIds, "ascii", (err, idData) => {
@@ -48,20 +60,18 @@ app.post("/donew", async (req, res) => {
 			return;
 		}
 
-		// Increment the id
 		const jIdData = JSON.parse(idData);
-		jIdData.files++;
-		const jIdString = JSON.stringify(jIdData);
-		fs.writeFile(cloudIds, jIdString, (err) => {
-			if (err) console.error(err);
-		});
 
 		// Create a new file
 		const newFile = JSON.stringify({
+			id: jIdData.files,
+			uploaded: Date.now(),
+			// These are base64 encrypted
 			name: req.body.name,
 			data: req.body.file,
 			desc: req.body.desc,
 		});
+
 		fs.writeFile(
 			path.join(__dirname, `/cloud/files/${jIdData.files}.json`),
 			newFile,
@@ -70,9 +80,16 @@ app.post("/donew", async (req, res) => {
 				if (err) console.error(err);
 			}
 		);
+
+		// Increment the id
+		jIdData.files++;
+		const jIdString = JSON.stringify(jIdData);
+		fs.writeFile(cloudIds, jIdString, (err) => {
+			if (err) console.error(err);
+		});
 	});
 	console.log("Added!");
-	res.redirect("/");
+	res.end();
 });
 
 app.listen(port, () => {

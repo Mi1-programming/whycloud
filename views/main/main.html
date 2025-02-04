@@ -13,7 +13,6 @@
 				<tr>
 					<th>Name</th>
 					<th>Description</th>
-					<th>Size</th>
 					<th>Uploaded</th>
 					<th>Actions</th>
 				</tr>
@@ -22,16 +21,32 @@
 		<script type="module">
 			import dom from "/static/scripts/dom.js";
 
+			function FromBase64(data) {
+				const binString = atob(data);
+				const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
+				return new TextDecoder().decode(bytes)
+			}
+
 			const page = await fetch("/getPage");
 			const body = await page.text()
-			console.log(body)
+			const jBody = JSON.parse(body)
 
-			const item = new dom.File(1, ["Doc", "Important", "1 mb", "14.1.2025"]);
-			item.MakeDom("cloud");
-			item.MakeDom("cloud");
-			item.MakeDom("cloud");
-			item.MakeDom("cloud");
-			item.MakeDom("cloud");
+			jBody.forEach(elem => {
+				for (const [key, value] of Object.entries(elem.user)) {
+					elem.user[key] = FromBase64(elem.user[key]);
+				}
+			});
+			jBody.forEach(elem => {
+				const item = new dom.File(
+					elem.id,
+					[
+						elem.user.name,
+						elem.user.desc,
+						new Date(elem.uploaded).toLocaleString()
+					]
+				);
+				item.MakeDom("cloud");
+			});
 		</script>
 	</body>
 </html>
