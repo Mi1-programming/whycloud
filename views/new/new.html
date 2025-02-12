@@ -26,36 +26,19 @@
 			const desc = document.getElementById("desc");
 			const upload = document.getElementById("upload");
 
-			// https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa
-
-			function ToBase64(data) {
-				const bytes = new TextEncoder().encode(data)
-				const binString = Array.from(bytes, (byte) =>
-					String.fromCodePoint(byte),
-				).join("");
-				return btoa(binString);
-			}
-
 			submit.addEventListener("click", (e) => {
 				const file = upload.files[0];
 				fileJS.Read(file, async (data) => {
 
-					// Define the json
-					const newBody = {
+					const body = {
 						name: file.name,
 						file: data,
 						desc: desc.value
 					}
-					// Encode all data
-					for (const [key, value] of Object.entries(newBody)) {
-						newBody[key] = ToBase64(value)
-					}
-					// Make the object sendable
-					const stringBody = JSON.stringify(newBody)
+					fileJS.EncodeObj64(body)
+					const strBody = JSON.stringify(body)
 
-					await fetch("/donew", { method: "POST", body: stringBody, headers: {
-						"Content-Type": "application/json"
-					}});
+					fileJS.FetchJSON("/donew", strBody)
 
 					location.assign("..")
 				});

@@ -20,23 +20,12 @@
 		</div>
 		<script type="module">
 			import dom from "/static/scripts/dom.js";
+			import fileJS from "/static/scripts/file.js";
 
-			function FromBase64(data) {
-				const binString = atob(data);
-				const bytes = Uint8Array.from(binString, (m) => m.codePointAt(0));
-				return new TextDecoder().decode(bytes)
-			}
+			const data = await fileJS.FetchJSON("/getPage")
 
-			const page = await fetch("/getPage");
-			const body = await page.text()
-			const jBody = JSON.parse(body)
-
-			jBody.forEach(elem => {
-				for (const [key, value] of Object.entries(elem.user)) {
-					elem.user[key] = FromBase64(elem.user[key]);
-				}
-			});
-			jBody.forEach(elem => {
+			data.forEach(elem => {
+				fileJS.DecodeObj64(elem.user)
 				const item = new dom.File(
 					elem.id,
 					[

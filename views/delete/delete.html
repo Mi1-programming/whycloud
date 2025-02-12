@@ -8,12 +8,27 @@
         <div class="vflex gap16">
             <div>
                 <p>Are you sure you want to delete</p>
-                <p>[Element name]?</p>
+                <p id="elemName"></p>
             </div>
             <div class="hflex gap8">
-                <button onclick="location.assign('dodel')" >Do it</button>
+                <button id="deleteButton">Do it</button>
                 <button onclick="location.assign('..')">Cancel</button>
             </div>
         </div>
+        <script type="module">
+            import fileJS from "/static/scripts/file.js";
+            const params = fileJS.GetURLParams()
+            const data = await fileJS.FetchJSON("/get", params)
+            const name = fileJS.Decode64(data.user.name)
+
+            const elemName = document.getElementById("elemName")
+            elemName.innerText = `${name}?`
+
+            const deleteButton = document.getElementById("deleteButton")
+            deleteButton.addEventListener("click", () => {
+                fileJS.FetchSendJSON("/dodel", params)
+                location.assign('..')
+            })
+        </script>
     </body>
 </html>

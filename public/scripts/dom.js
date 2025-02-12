@@ -1,4 +1,6 @@
-class DomFile {
+import fileJS from "/static/scripts/file.js";
+
+class File {
 	constructor(id, props) {
 		this.id = id;
 		this.props = props;
@@ -25,8 +27,25 @@ class DomFile {
 
 		const down = document.createElement("button");
 		down.innerText = "Download";
-		down.addEventListener("click", () => {
-			console.log(`Download of ${this.id} started!`);
+		down.addEventListener("click", async () => {
+			const data = {
+				id: this.id
+			}
+			const strData = JSON.stringify(data)
+
+			const res = await fileJS.FetchJSON("/download", strData)
+			fileJS.DecodeObj64(res)
+
+			const link = document.createElement("a")
+			document.body.appendChild(link)
+			link.style = "display: none"
+			const blob = new Blob([res.data], {type: "octet/stream"})
+			const url = window.URL.createObjectURL(blob)
+			link.href = url;
+			link.download = res.name;
+			link.click();
+			window.URL.revokeObjectURL(url);
+			link.remove()
 		});
 		container.appendChild(down);
 
@@ -42,5 +61,5 @@ class DomFile {
 	}
 }
 export default {
-	File: DomFile,
+	File,
 };

@@ -11,6 +11,38 @@ const port = 3000;
 const fileDir = path.join(__dirname, "/cloud/files");
 const cloudIds = path.join(__dirname, "/cloud/id.json");
 
+function ToDataPath(id) {
+	return `${fileDir}/${id}`
+}
+function ToDataPathEx(id, ex) {
+	return `${ToDataPath(id)}.${ex}`
+}
+async function ReadJSON(name) {
+	const data = await fs.promises.readFile(name, "ascii");
+	const jData = JSON.parse(data);
+	return jData
+}
+async function FindItem(name) {
+	const data = await ReadJSON(name)
+	const result = {
+		id: data.id,
+		uploaded: data.uploaded,
+		user: {
+			name: data.name,
+			desc: data.desc,
+		},
+	};
+	return result
+}
+async function FindItemFile(name) {
+	const data = await ReadJSON(name)
+	const result = {
+		name: data.name,
+		data: data.data,
+	};
+	return result
+}
+
 app.get("/", (req, res) => {
 	res.sendFile(path.join(__dirname, "/views/main/main.html"));
 });
@@ -20,38 +52,33 @@ app.get("/delete", (req, res) => {
 app.get("/new", (req, res) => {
 	res.sendFile(path.join(__dirname, "/views/new/new.html"));
 });
-// TODO: Error handling, and security
-app.get("/getPage", async (req, res) => {
+
+app.post("/getPage", async (req, res) => {
 	const fileList = [];
 	fs.readdir(fileDir, async (err, files) => {
 		for (const file of files) {
-			const data = await fs.promises.readFile(`${fileDir}/${file}`, "ascii");
-			const jData = JSON.parse(data);
-			fileList.push({
-				id: jData.id,
-				uploaded: jData.uploaded,
-				user: {
-					name: jData.name,
-					desc: jData.desc,
-				},
-			});
+			const data = await FindItem(ToDataPath(file))
+			fileList.push(data);
 		}
 		const fileString = JSON.stringify(fileList);
 		res.send(fileString);
 	});
 });
-
+app.post("/download", async (req, res) => {
+	const data = await FindItemFile(ToDataPathEx(req.body.id, "json"))
+	const dataStr = JSON.stringify(data)
+	res.send(dataStr)
+});
+app.post("/get", async (req, res) => {
+	const data = await FindItem(ToDataPathEx(req.body.id, "json"))
+	const dataStr = JSON.stringify(data)
+	res.send(dataStr)
+});
 app.post("/dodel", (req, res) => {
 	console.log("deleted!");
-	fs.writeFile(
-		path.join(__dirname, `/cloud/files/${jIdData.files}.json`),
-		newFile,
-		{ flag: "wx" },
-		(err) => {
-			if (err) console.error(err);
-		}
-	);
-	res.end();
+	fs.unlink(ToDataPathEx(req.body.id, "json"), () => {
+		res.end();
+	})
 });
 app.post("/donew", async (req, res) => {
 	await fs.readFile(cloudIds, "ascii", (err, idData) => {
