@@ -27,21 +27,27 @@
 			const upload = document.getElementById("upload");
 
 			submit.addEventListener("click", (e) => {
-				const file = upload.files[0];
-				fileJS.Read(file, async (data) => {
 
+				const file = upload.files[0];
+				const reader = new FileReader();
+				reader.onload = (e) => {
 					const body = {
 						name: file.name,
-						file: data,
 						desc: desc.value
 					}
 					fileJS.EncodeObj64(body)
+
+					const uint8Arr = new Uint8Array(reader.result)
+					const data = fileJS.BytesToBase64(uint8Arr)
+					body.file = data
+
 					const strBody = JSON.stringify(body)
 
-					fileJS.FetchJSON("/donew", strBody)
+					fileJS.FetchSendJSON("/donew", strBody)
 
 					location.assign("..")
-				});
+				};
+				reader.readAsArrayBuffer(file);
 			});
 		</script>
 	</body>

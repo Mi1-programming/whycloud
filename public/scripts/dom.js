@@ -29,23 +29,25 @@ class File {
 		down.innerText = "Download";
 		down.addEventListener("click", async () => {
 			const data = {
-				id: this.id
-			}
-			const strData = JSON.stringify(data)
+				id: this.id,
+			};
+			const strData = JSON.stringify(data);
 
-			const res = await fileJS.FetchJSON("/download", strData)
-			fileJS.DecodeObj64(res)
+			const res = await fileJS.FetchJSON("/download", strData);
 
-			const link = document.createElement("a")
-			document.body.appendChild(link)
-			link.style = "display: none"
-			const blob = new Blob([res.data], {type: "octet/stream"})
-			const url = window.URL.createObjectURL(blob)
+			const fileData = fileJS.Base64ToBytes(res.data);
+			const name = fileJS.Decode64(res.name);
+
+			const link = document.createElement("a");
+			document.body.appendChild(link);
+			link.style = "display: none";
+			const blob = new Blob([fileData], { type: "octet/stream" });
+			const url = window.URL.createObjectURL(blob);
 			link.href = url;
-			link.download = res.name;
+			link.download = name;
 			link.click();
 			window.URL.revokeObjectURL(url);
-			link.remove()
+			link.remove();
 		});
 		container.appendChild(down);
 
