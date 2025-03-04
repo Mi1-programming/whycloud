@@ -2,6 +2,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 body {
     padding: 8px;
@@ -41,4 +42,14 @@ tr:nth-child(odd) {
 }
 .gap32 {
     gap: 32px;
+}
+
+.select {
+    background-color: cadetblue !important;
+}
+.selectorColumn {
+    width: 32px;
+}
+.selector:hover {
+    background-color: lightblue;
 }

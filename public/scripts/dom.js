@@ -1,67 +1,77 @@
 import fileJS from "/static/scripts/file.js";
 
+const selected = {};
+
 class File {
 	constructor(id, props) {
 		this.id = id;
 		this.props = props;
+		this.selector = undefined;
+	}
+	Select() {
+		this.selector.classList.add("select");
+		selected[this.id] = this;
+	}
+	Deselect() {
+		this.selector.classList.remove("select");
+		delete selected[this.id];
 	}
 	MakeDom(parentId) {
 		const parent = document.getElementById(parentId);
 		const newRow = document.createElement("tr");
+
+		this.selector = document.createElement("td");
+
+		this.selector.classList = "selector";
+		if (selected[this.id] != undefined) {
+			newColumn.classList.add("select");
+		}
+		this.selector.addEventListener("click", () => {
+			if (selected[this.id] == undefined) {
+				this.Select();
+				return;
+			}
+			this.Deselect();
+		});
+		newRow.appendChild(this.selector);
+
 		parent.appendChild(newRow);
 		this.props.forEach((elem) => {
-			const newCol = document.createElement("td");
-			newCol.innerText = elem;
-			newRow.appendChild(newCol);
+			const newColumn = document.createElement("td");
+			newColumn.innerText = elem;
+			newRow.appendChild(newColumn);
 		});
 
 		const controls = document.createElement("td");
 		const container = document.createElement("div");
 
-		const edit = document.createElement("button");
-		edit.innerText = "Edit";
-		edit.addEventListener("click", () => {
-			location.assign(`edit?id=${this.id}`);
-		});
-		container.appendChild(edit);
-
-		const down = document.createElement("button");
-		down.innerText = "Download";
-		down.addEventListener("click", async () => {
-			const data = {
-				id: this.id,
-			};
-			const strData = JSON.stringify(data);
-
-			const res = await fileJS.FetchJSON("/download", strData);
-
-			const fileData = fileJS.Base64ToBytes(res.data);
-			const name = fileJS.Decode64(res.name);
-
-			const link = document.createElement("a");
-			document.body.appendChild(link);
-			link.style = "display: none";
-			const blob = new Blob([fileData], { type: "octet/stream" });
-			const url = window.URL.createObjectURL(blob);
-			link.href = url;
-			link.download = name;
-			link.click();
-			window.URL.revokeObjectURL(url);
-			link.remove();
-		});
-		container.appendChild(down);
-
-		const del = document.createElement("button");
-		del.innerText = "Delete";
-		del.addEventListener("click", () => {
-			location.assign(`delete?id=${this.id}`);
-		});
-		container.appendChild(del);
-
 		controls.appendChild(container);
 		newRow.appendChild(controls);
+	}
+	async Download() {
+		const data = {
+			id: this.id,
+		};
+		const strData = JSON.stringify(data);
+
+		const res = await fileJS.FetchJSON("/download", strData);
+
+		const fileData = fileJS.Base64ToBytes(res.data);
+		const name = fileJS.Decode64(res.name);
+
+		const link = document.createElement("a");
+		document.body.appendChild(link);
+		link.style = "display: none";
+		const blob = new Blob([fileData], { type: "octet/stream" });
+		const url = window.URL.createObjectURL(blob);
+		link.href = url;
+		link.download = name;
+		link.click();
+		window.URL.revokeObjectURL(url);
+		link.remove();
 	}
 }
 export default {
 	File,
+	selected,
 };

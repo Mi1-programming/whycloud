@@ -6,15 +6,20 @@
 	</head>
 	<body>
 		<div class="vflex gap16">
-			<div class="hflex">
+			<div class="hflex gap8">
 				<button onclick="location.assign('new')">Upload</button>
+				<h2>Selection</h2>
+				<button id="deselect">Deselect</button>
+				<button id="download">Download</button>
+				<button id="remove">Remove</button>
 			</div>
 			<table id="cloud">
 				<tr>
+					<th class="selectorColumn"></th>
 					<th>Name</th>
 					<th>Description</th>
 					<th>Uploaded</th>
-					<th>Actions</th>
+					<th>Tags</th>
 				</tr>
 			</table>
 		</div>
@@ -36,6 +41,37 @@
 				);
 				item.MakeDom("cloud");
 			});
+
+			const deselect = document.getElementById("deselect")
+			deselect.addEventListener("click", () => {
+				for (const [key, value] of Object.entries(dom.selected)) {
+					value.Deselect()
+				}
+			})
+			const download = document.getElementById("download")
+			download.addEventListener("click", async () => {
+				for await (const [key, value] of Object.entries(dom.selected)) {
+					value.Download()
+				}
+			})
+			const remove = document.getElementById("remove")
+			remove.addEventListener("click", async () => {
+				const names = []
+				const data = {
+					ids: []
+				}
+				for (const [key, value] of Object.entries(dom.selected)) {
+					data.ids.push(key)
+					console.log(value)
+					names.push(value.props[0])
+				}
+
+				if (confirm(`Do you want to remove the files: ${names.join(", ")}?`)) {
+					const deleteString = JSON.stringify(data)
+					fileJS.FetchSendJSON("/dodel", deleteString)
+					location.reload();
+				}
+			})
 		</script>
 	</body>
 </html>
