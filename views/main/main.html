@@ -5,23 +5,62 @@
 		<link rel="stylesheet" href="static/main.css" />
 	</head>
 	<body>
-		<div class="vflex gap16">
+		<div class="vflex cvflex gap32">
+			<h1 class="center">Whycloud</h1>
 			<div class="hflex gap8">
-				<button onclick="location.assign('new')">Upload</button>
-				<h2>Selection</h2>
-				<button id="deselect">Deselect</button>
-				<button id="download">Download</button>
-				<button id="remove">Remove</button>
+				<button id="upload" class="hflex cvflex gap8" onclick="location.assign('new')">
+					<img src="/static/icons/upload.svg"/>
+					<p>Upload</p>
+				</button>
+				<button class="hflex cvflex gap8">
+					<img src="/static/icons/label.svg"/>
+					<p>Tags</p>
+				</button>
 			</div>
-			<table id="cloud">
-				<tr>
-					<th class="selectorColumn"></th>
-					<th>Name</th>
-					<th>Description</th>
-					<th>Uploaded</th>
-					<th>Tags</th>
-				</tr>
-			</table>
+			<h2 class="center">Explore</h2>
+			<div class="vflex gap16">
+				<button>
+					<div class="hflex cvflex gap8">
+						<img src="/static/icons/search.svg"/>
+						<input type="search" placeholder="Search" />
+					</div>
+				</button>
+				<div class="hflex gap32">
+					<div id="tags">
+						<button class="tag">School</button>
+						<button class="tag">Cats</button>
+						<button class="tag">Games</button>
+						<button class="tag">Work</button>
+						<button class="tag">Shopping lists</button>
+						<div class="moreFade"></div>
+					</div>
+					<button>More</button>
+				</div>
+			</div>
+			
+			<h2 class="center">Files</h2>
+			<div class="vflex cvflex gap8">
+				<div class="hflex gap8">
+					<button id="deselect">Deselect</button>
+					<button id="download" class="hflex cvflex gap8">
+						<img src="/static/icons/download.svg"/>
+						<p>Download Selected</p>
+					</button>
+					<button id="remove" class="hflex cvflex gap8">
+						<img src="/static/icons/delete.svg"/>
+						<p>Delete Selected</p>
+					</button>
+				</div>
+				<table id="cloud">
+					<tr>
+						<th class="selectorColumn"></th>
+						<th>Name</th>
+						<th>Description</th>
+						<th>Uploaded</th>
+						<th>Tags</th>
+					</tr>
+				</table>
+			</div>
 		</div>
 		<script type="module">
 			import dom from "/static/scripts/dom.js";
