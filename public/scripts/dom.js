@@ -2,51 +2,78 @@ import fileJS from "/static/scripts/file.js";
 
 const selected = {};
 
+class Tag {
+	constructor(id, name) {
+		this.id = id;
+		this.name = name;
+	}
+}
 class File {
-	constructor(id, props) {
+	constructor(id, props, tags) {
 		this.id = id;
 		this.props = props;
-		this.selector = undefined;
+		this.tags = tags;
+		this.row = undefined;
 	}
 	Select() {
-		this.selector.classList.add("select");
+		this.row.classList.add("select");
 		selected[this.id] = this;
 	}
 	Deselect() {
-		this.selector.classList.remove("select");
+		this.row.classList.remove("select");
 		delete selected[this.id];
 	}
 	MakeDom(parentId) {
 		const parent = document.getElementById(parentId);
 		const newRow = document.createElement("tr");
+		newRow.classList = "fileRow";
 
-		this.selector = document.createElement("td");
-
-		this.selector.classList = "selector";
-		if (selected[this.id] != undefined) {
-			newColumn.classList.add("select");
-		}
-		this.selector.addEventListener("click", () => {
-			if (selected[this.id] == undefined) {
-				this.Select();
-				return;
-			}
-			this.Deselect();
-		});
-		newRow.appendChild(this.selector);
+		// NAME, DESCRIPTION, UPLOADED
 
 		parent.appendChild(newRow);
+
+		const cross = document.createElement("td");
+		cross.classList = "cross";
+		newRow.appendChild(cross);
+
 		this.props.forEach((elem) => {
 			const newColumn = document.createElement("td");
 			newColumn.innerText = elem;
 			newRow.appendChild(newColumn);
 		});
 
-		const controls = document.createElement("td");
-		const container = document.createElement("div");
+		// TAGS
 
-		controls.appendChild(container);
-		newRow.appendChild(controls);
+		const tagsColumnTd = document.createElement("td");
+		const tagsColumnDiv = document.createElement("div");
+		tagsColumnTd.appendChild(tagsColumnDiv);
+		tagsColumnDiv.classList = "hflex gap4";
+
+		this.tags.forEach((elem) => {
+			const tagButton = document.createElement("button");
+			tagButton.innerText = elem;
+			tagButton.classList = "tag";
+			tagsColumnDiv.appendChild(tagButton);
+		});
+		const tagManageButton = document.createElement("button");
+		tagManageButton.innerText = "+";
+		tagsColumnDiv.appendChild(tagManageButton);
+
+		newRow.appendChild(tagsColumnTd);
+
+		// SELECTING
+
+		this.row = newRow;
+		if (selected[this.id] != undefined) {
+			this.row.classList.add("select");
+		}
+		this.row.addEventListener("click", () => {
+			if (selected[this.id] == undefined) {
+				this.Select();
+				return;
+			}
+			this.Deselect();
+		});
 	}
 	async Download() {
 		const data = {

@@ -7,16 +7,6 @@
 	<body>
 		<div class="vflex cvflex gap32">
 			<h1 class="center">Whycloud</h1>
-			<div class="hflex gap8">
-				<button id="upload" class="hflex cvflex gap8" onclick="location.assign('new')">
-					<img src="/static/icons/upload.svg"/>
-					<p>Upload</p>
-				</button>
-				<button class="hflex cvflex gap8">
-					<img src="/static/icons/label.svg"/>
-					<p>Tags</p>
-				</button>
-			</div>
 			<h2 class="center">Explore</h2>
 			<div class="vflex gap16">
 				<button>
@@ -39,9 +29,12 @@
 			</div>
 			
 			<h2 class="center">Files</h2>
-			<div class="vflex cvflex gap8">
+			<div class="vflex cvflex gap16">
 				<div class="hflex gap8">
-					<button id="deselect">Deselect</button>
+					<button id="upload" class="hflex cvflex gap8" onclick="location.assign('new')">
+						<img src="/static/icons/upload.svg"/>
+						<p>Upload</p>
+					</button>
 					<button id="download" class="hflex cvflex gap8">
 						<img src="/static/icons/download.svg"/>
 						<p>Download Selected</p>
@@ -50,10 +43,11 @@
 						<img src="/static/icons/delete.svg"/>
 						<p>Delete Selected</p>
 					</button>
+					<button id="deselect">Deselect</button>
 				</div>
 				<table id="cloud">
 					<tr>
-						<th class="selectorColumn"></th>
+						<th></th>
 						<th>Name</th>
 						<th>Description</th>
 						<th>Uploaded</th>
@@ -76,6 +70,9 @@
 						elem.user.name,
 						elem.user.desc,
 						new Date(elem.uploaded).toLocaleString()
+					],
+					[
+						"School"
 					]
 				);
 				item.MakeDom("cloud");
