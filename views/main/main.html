@@ -12,19 +12,30 @@
 				<button>
 					<div class="hflex cvflex gap8">
 						<img src="/static/icons/search.svg"/>
-						<input type="search" placeholder="Search" />
+						<input class="fill" type="search" placeholder="Search" />
 					</div>
 				</button>
-				<div class="hflex gap32">
+				<div closed id="tagExplore" class="hflex gap16">
 					<div id="tags">
 						<button class="tag">School</button>
 						<button class="tag">Cats</button>
 						<button class="tag">Games</button>
 						<button class="tag">Work</button>
 						<button class="tag">Shopping lists</button>
-						<div class="moreFade"></div>
+						<button class="tag">Cars</button>
+						<button class="tag">Documents</button>
+						<button class="tag">Planes</button>
+						<button class="tag">Dogs</button>
+						<button class="tag">Blender</button>
+						<button class="tag">Affinity</button>
+						<button class="tag">FL Studio</button>
+						<button class="tag">SFX</button>
+						<button class="tag">Music</button>
+						<button class="tag">Trees</button>
+						<button class="tag">People</button>
+						<div id="moreFade"></div>
 					</div>
-					<button>More</button>
+					<button id="more"></button>
 				</div>
 			</div>
 			
@@ -76,6 +87,19 @@
 					]
 				);
 				item.MakeDom("cloud");
+			});
+
+			const tagExplore = document.getElementById("tagExplore")
+			const moreButton = document.getElementById("more")
+			const closeAttribute = "closed"
+			moreButton.addEventListener("click", () => {
+				const isClosed = tagExplore.getAttribute(closeAttribute)
+				console.log(isClosed)
+				if (isClosed == undefined) {
+					tagExplore.setAttribute(closeAttribute, "")
+					return
+				}
+				tagExplore.removeAttribute(closeAttribute)
 			});
 
 			const deselect = document.getElementById("deselect")

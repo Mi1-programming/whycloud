@@ -11,20 +11,21 @@ body {
 }
 button, input {
     color: #3D3D3D;
-    background: #F0F0D7;
-}
-button:hover {
-    background-color: #D0DDD0;
 }
 input {
+    background: transparent;
     border: 0;
     outline: 0;
 }
 button {
+    background: #F0F0D7;
     border: 2px solid #3D3D3D;
     border-radius: 50vh;
     padding: 2px;
     padding-inline: 8px;
+}
+button:hover {
+    background-color: #D0DDD0;
 }
     
 table {
@@ -83,25 +84,44 @@ td, tr {
     background-color: #3D3D3D;
 }
 #tags {
+    width: 300px;
     position: relative;
+    padding: 2px;
 }
-.moreFade {
-    margin-left: 2px;
-    width: 100%;
-    height: 100%;
+#tagExplore[closed] #tags {
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+#tagExplore[closed] #more::after {
+    content: "More";
+}
+#tagExplore[closed] #moreFade {
+    display: inherit;
+}
+#more {
+    width: 50px;
+    margin-top: auto;
+}
+#more::after {
+    content: "Less";
+}
+#moreFade {
+    display: none;
     background: linear-gradient(90deg, transparent 50%, #F0F0D7);
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    left: 0px;
+    top: -2px;
+    right: -2px;
+    bottom: 0px;
     pointer-events: none;
 }
+
 .tag {
     color: #F0F0D7;
     background-color: red;
     border: 0;
     border-radius: 4px;
+    margin: 2px;
     padding-inline: 8px;
 }
 .tag:hover {
