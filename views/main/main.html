@@ -71,6 +71,9 @@
 			import dom from "/static/scripts/dom.js";
 			import fileJS from "/static/scripts/file.js";
 
+			const tags = await fileJS.FetchJSON("/tags")
+			console.log(tags)
+
 			const data = await fileJS.FetchJSON("/getPage")
 
 			data.forEach(elem => {

@@ -2,21 +2,38 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
+const port = 3000;
 const app = express();
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "1gb" }));
 
-const port = 3000;
-const fileDir = path.join(__dirname, "/cloud/files");
-const cloudIds = path.join(__dirname, "/cloud/id.json");
+function FillRelativePath(relativePath) {
+	return path.join(__dirname, relativePath);
+}
+function BuildCloudDirectory(relativePath) {
+	const cloudDirectory = {
+		path: FillRelativePath(relativePath),
+		ReadDirectory(callback) {
+			const files = fs.readdir(this.path, callback)
+			return files
+		},
+		GetFilePath(id) {
+			return `${this.path}/${id}`;
+		},
+		GetFilePathWithExtension(id, extension) {
+			const newPath = this.GetFilePath(id)
+			const pathWithExtension = `${newPath}.${extension}`;
+			return pathWithExtension
+		},
+	}
+	return cloudDirectory
+}
 
-function ToDataPath(id) {
-	return `${fileDir}/${id}`;
-}
-function ToDataPathEx(id, ex) {
-	return `${ToDataPath(id)}.${ex}`;
-}
+const fileDirectory = BuildCloudDirectory("/cloud/files")
+const tagDirectory = BuildCloudDirectory("/cloud/tags")
+const cloudIds = FillRelativePath("/cloud/id.json");
+
 async function ReadJSON(name) {
 	const data = await fs.promises.readFile(name, "ascii");
 	const jData = JSON.parse(data);
@@ -31,6 +48,14 @@ async function FindItem(name) {
 			name: data.name,
 			desc: data.desc,
 		},
+	};
+	return result;
+}
+async function FindTag(name) {
+	const data = await ReadJSON(name);
+	const result = {
+		name: data.name,
+		files: data.files
 	};
 	return result;
 }
@@ -52,33 +77,44 @@ app.get("/new", (req, res) => {
 
 app.post("/getPage", async (req, res) => {
 	const fileList = [];
-	fs.readdir(fileDir, async (err, files) => {
+	fileDirectory.ReadDirectory(async (err, files) => {
 		for (const file of files) {
-			const data = await FindItem(ToDataPath(file));
+			const data = await FindItem(fileDirectory.GetFilePath(file));
 			fileList.push(data);
 		}
 		const fileString = JSON.stringify(fileList);
 		res.send(fileString);
-	});
+	})
 });
 app.post("/download", async (req, res) => {
-	const data = await FindItemFile(ToDataPathEx(req.body.id, "json"));
+	const data = await FindItemFile(fileDirectory.GetFilePathWithExtension(req.body.id, "json"));
 	const dataStr = JSON.stringify(data);
 	res.send(dataStr);
 });
 app.post("/get", async (req, res) => {
 	const datas = [];
-	console.log(req.body.ids);
 	for await (const id of req.body.ids) {
-		const newData = await FindItem(ToDataPathEx(id, "json"));
+		const newData = await FindItem(fileDirectory.GetFilePathWithExtension(id, "json"));
 		datas.push(newData);
 	}
 	const dataStr = JSON.stringify(datas);
 	res.send(dataStr);
 });
+app.post("/tags", async (req, res) => {
+	tagDirectory.ReadDirectory(async (err, files) => {
+		const fileList = []
+		for (const file of files) {
+			const data = await FindTag(tagDirectory.GetFilePath(file));
+			fileList.push(data);
+		}
+		const fileString = JSON.stringify(fileList);
+		console.log(fileList)
+		res.send(fileString);
+	})
+});
 app.post("/dodel", (req, res) => {
 	req.body.ids.forEach((id) => {
-		fs.unlink(ToDataPathEx(id, "json"), () => {
+		fs.unlink(fileDirectory.GetFilePath(id, "json"), () => {
 			res.end();
 		});
 	});
