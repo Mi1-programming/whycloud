@@ -55,6 +55,7 @@ async function FindTag(name) {
 	const data = await ReadJSON(name);
 	const result = {
 		name: data.name,
+		color: data.color,
 		files: data.files
 	};
 	return result;

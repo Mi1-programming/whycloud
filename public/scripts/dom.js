@@ -1,36 +1,50 @@
 import fileJS from "/static/scripts/file.js";
+import colorJS from "/static/scripts/color.js"
 
 const selected = {};
 
-class Tag {
-	constructor(id, name) {
-		this.id = id;
-		this.name = name;
+class DomElement {
+	MakeDom(parentId) {
+		alert("Not implemented")
 	}
 }
-class File {
+class Tag extends DomElement {
+	constructor(name, color) {
+		super();
+		this.name = name;
+		this.color = color;
+	}
+	MakeDom(parentId) {
+		const parent = document.getElementById(parentId);
+		const newButton = document.createElement("button");
+		newButton.classList = "tag";
+		const hexColor = `#${this.color}`
+		newButton.style.backgroundColor = hexColor;
+		newButton.style.outlineColor = hexColor;
+		
+		const foregroundColor = colorJS.GetForeground("#F0F0D7", "#3D3D3D", this.color)
+		newButton.style.color = foregroundColor
+		newButton.innerText = this.name;
+
+		parent.appendChild(newButton)
+	}
+}
+class File extends DomElement {
 	constructor(id, props, tags) {
+		super();
 		this.id = id;
 		this.props = props;
 		this.tags = tags;
 		this.row = undefined;
-	}
-	Select() {
-		this.row.classList.add("select");
-		selected[this.id] = this;
-	}
-	Deselect() {
-		this.row.classList.remove("select");
-		delete selected[this.id];
 	}
 	MakeDom(parentId) {
 		const parent = document.getElementById(parentId);
 		const newRow = document.createElement("tr");
 		newRow.classList = "fileRow";
 
-		// NAME, DESCRIPTION, UPLOADED
-
 		parent.appendChild(newRow);
+
+		// NAME, DESCRIPTION, UPLOADED
 
 		const cross = document.createElement("td");
 		cross.classList = "cross";
@@ -75,6 +89,14 @@ class File {
 			this.Deselect();
 		});
 	}
+	Select() {
+		this.row.classList.add("select");
+		selected[this.id] = this;
+	}
+	Deselect() {
+		this.row.classList.remove("select");
+		delete selected[this.id];
+	}
 	async Download() {
 		const data = {
 			id: this.id,
@@ -100,5 +122,6 @@ class File {
 }
 export default {
 	File,
+	Tag,
 	selected,
 };

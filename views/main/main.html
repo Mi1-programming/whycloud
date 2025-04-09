@@ -17,22 +17,6 @@
 				</button>
 				<div closed id="tagExplore" class="hflex gap16">
 					<div id="tags">
-						<button class="tag">School</button>
-						<button class="tag">Cats</button>
-						<button class="tag">Games</button>
-						<button class="tag">Work</button>
-						<button class="tag">Shopping lists</button>
-						<button class="tag">Cars</button>
-						<button class="tag">Documents</button>
-						<button class="tag">Planes</button>
-						<button class="tag">Dogs</button>
-						<button class="tag">Blender</button>
-						<button class="tag">Affinity</button>
-						<button class="tag">FL Studio</button>
-						<button class="tag">SFX</button>
-						<button class="tag">Music</button>
-						<button class="tag">Trees</button>
-						<button class="tag">People</button>
 						<div id="moreFade"></div>
 					</div>
 					<button id="more"></button>
@@ -72,7 +56,13 @@
 			import fileJS from "/static/scripts/file.js";
 
 			const tags = await fileJS.FetchJSON("/tags")
-			console.log(tags)
+			tags.forEach((tag) => {
+				const item = new dom.Tag(
+					tag.name,
+					tag.color
+				)
+				item.MakeDom("tags")
+			})
 
 			const data = await fileJS.FetchJSON("/getPage")
 
@@ -97,7 +87,6 @@
 			const closeAttribute = "closed"
 			moreButton.addEventListener("click", () => {
 				const isClosed = tagExplore.getAttribute(closeAttribute)
-				console.log(isClosed)
 				if (isClosed == undefined) {
 					tagExplore.setAttribute(closeAttribute, "")
 					return
