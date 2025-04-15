@@ -69,9 +69,6 @@ class File extends DomElement {
 			tagButton.classList = "tag";
 			tagsColumnDiv.appendChild(tagButton);
 		});
-		const tagManageButton = document.createElement("button");
-		tagManageButton.innerText = "+";
-		tagsColumnDiv.appendChild(tagManageButton);
 
 		newRow.appendChild(tagsColumnTd);
 

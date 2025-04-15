@@ -51,6 +51,12 @@ td, tr {
 .cvflex {
     align-items: center;
 }
+.jflex {
+    justify-content: center;
+}
+.wflex {
+    flex-wrap: wrap;
+}
 .fill {
     flex: 1;
 }
