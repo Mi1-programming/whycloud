@@ -44,7 +44,7 @@ class File extends DomElement {
 
 		parent.appendChild(newRow);
 
-		// NAME, DESCRIPTION, UPLOADED
+		// NAME, UPLOADED
 
 		const cross = document.createElement("td");
 		cross.classList = "cross";

@@ -11,10 +11,6 @@
 				<input id="upload" type="file" />
 			</div>
 			<div class="hflex gap8">
-				<label for="desc">Description</label>
-				<input id="desc" type="text" />
-			</div>
-			<div class="hflex gap8">
 				<button id="submit">Upload</button>
 				<button onclick="location.assign('..')">Cancel</button>
 			</div>
@@ -23,7 +19,6 @@
 			import fileJS from "/static/scripts/file.js";
 
 			const submit = document.getElementById("submit");
-			const desc = document.getElementById("desc");
 			const upload = document.getElementById("upload");
 
 			submit.addEventListener("click", (e) => {
@@ -33,7 +28,6 @@
 				reader.onload = (e) => {
 					const body = {
 						name: file.name,
-						desc: desc.value
 					}
 					fileJS.EncodeObj64(body)
 

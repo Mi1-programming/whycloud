@@ -115,7 +115,7 @@ app.post("/tags", async (req, res) => {
 });
 app.post("/dodel", (req, res) => {
 	req.body.ids.forEach((id) => {
-		fs.unlink(fileDirectory.GetFilePath(id, "json"), () => {
+		fs.unlink(fileDirectory.GetFilePathWithExtension(id, "json"), () => {
 			res.end();
 		});
 	});
@@ -136,7 +136,6 @@ app.post("/donew", async (req, res) => {
 			// These are base64 encrypted
 			name: req.body.name,
 			data: req.body.file,
-			desc: req.body.desc,
 		});
 
 		fs.writeFile(
