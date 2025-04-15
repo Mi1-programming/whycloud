@@ -27,6 +27,8 @@ class Tag extends DomElement {
 		newButton.innerText = this.name;
 
 		parent.appendChild(newButton)
+
+		return newButton
 	}
 }
 class File extends DomElement {
@@ -69,6 +71,12 @@ class File extends DomElement {
 			tagButton.classList = "tag";
 			tagsColumnDiv.appendChild(tagButton);
 		});
+		const tagManageButton = document.createElement("button");
+		tagManageButton.innerText = "+";
+		tagsColumnDiv.appendChild(tagManageButton);
+		tagManageButton.addEventListener("click", () => {
+			location.assign(`tag?id=${this.id}`)
+		})
 
 		newRow.appendChild(tagsColumnTd);
 
@@ -85,6 +93,8 @@ class File extends DomElement {
 			}
 			this.Deselect();
 		});
+
+		return newRow
 	}
 	Select() {
 		this.row.classList.add("select");

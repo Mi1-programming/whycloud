@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Whycloud - Tag</title>
+		<link rel="stylesheet" href="static/main.css" />
+	</head>
+	<body>
+        <div class="vflex cvflex gap16">
+            <h1>Choose Your Tags</h1>
+            <div id="tags"></div>
+            <div class="hflex gap8">
+                <button id="apply">Apply</button>
+                <button id="backButton">Back</button>
+            </div>
+        </div>
+		<script type="module">
+            import dom from "/static/scripts/dom.js";
+            import fileJS from "/static/scripts/file.js";
+
+            const tagged = {}
+
+            const backButton = document.getElementById("backButton")
+            backButton.addEventListener("click", () => {
+                location.assign("..")
+            })
+
+            const apply = document.getElementById("apply")
+            apply.addEventListener("click", () => {
+                const urlVariables = fileJS.GetURLParams()
+
+                const itemTags = []
+                for (const [key, value] of Object.entries(tagged)) {
+                    itemTags.push(value.id)
+                }
+
+                console.log(itemTags)
+
+                const sendData = {
+                    id: urlVariables.id,
+                    tags: itemTags
+                }
+                fileJS.FetchSendJSON("/dotag", urlVariables)
+                //location.assign("..")
+            })
+            
+			const tags = await fileJS.FetchJSON("/tags")
+			tags.forEach((tag) => {
+				const item = new dom.Tag(
+					tag.name,
+					tag.color
+				)
+				const newTag = item.MakeDom("tags")
+                newTag.addEventListener("click", () => {
+                    if (tagged[item.id] == undefined)
+                        tagged[item.id] = item
+                    else
+                        delete tagged[item.id]
+
+                    newTag.classList.toggle("choose")
+                })
+			})
+		</script>
+	</body>
+</html>

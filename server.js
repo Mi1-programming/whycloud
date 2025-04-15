@@ -75,6 +75,9 @@ app.get("/", (req, res) => {
 app.get("/new", (req, res) => {
 	res.sendFile(path.join(__dirname, "/views/new/new.html"));
 });
+app.get("/tag", (req, res) => {
+	res.sendFile(path.join(__dirname, "/views/tag/tag.html"));
+});
 
 app.post("/getPage", async (req, res) => {
 	const fileList = [];
@@ -107,11 +110,14 @@ app.post("/tags", async (req, res) => {
 		for (const file of files) {
 			const data = await FindTag(tagDirectory.GetFilePath(file));
 			fileList.push(data);
+			console.log(data)
 		}
 		const fileString = JSON.stringify(fileList);
-		console.log(fileList)
 		res.send(fileString);
 	})
+});
+app.post("/dotag", (req, res) => {
+	console.log(req.body.id)
 });
 app.post("/dodel", (req, res) => {
 	req.body.ids.forEach((id) => {

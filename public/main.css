@@ -145,6 +145,6 @@ td, tr {
     text-align: center;
     width: 32px;
 }
-.select .cross::after {
-    content: "✓";
+.choose::after, .select .cross::after {
+    content: " ✓";
 }

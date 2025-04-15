@@ -30,10 +30,6 @@
 					<p>Upload</p>
 				</button>
 				<div class="hflex wflex jflex gap8">
-					<button id="tag" class="hflex cvflex gap8">
-						<img src="/static/icons/tag.svg"/>
-						<p>Tag Selected</p>
-					</button>
 					<button id="download" class="hflex cvflex gap8">
 						<img src="/static/icons/download.svg"/>
 						<p>Download Selected</p>
@@ -77,9 +73,7 @@
 						elem.user.name,
 						new Date(elem.uploaded).toLocaleString()
 					],
-					[
-						"School"
-					]
+					[]
 				);
 				item.MakeDom("cloud");
 			});
@@ -116,7 +110,6 @@
 				}
 				for (const [key, value] of Object.entries(dom.selected)) {
 					data.ids.push(key)
-					console.log(value)
 					names.push(value.props[0])
 				}
 
