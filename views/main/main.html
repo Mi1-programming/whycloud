@@ -12,7 +12,7 @@
 				<button>
 					<div class="hflex cvflex gap8">
 						<img src="/static/icons/search.svg" />
-						<input class="fill" type="search" placeholder="Search" />
+						<input id="search" class="fill" type="search" placeholder="Search" />
 					</div>
 				</button>
 				<div closed id="tagExplore" class="hflex gap16">
@@ -58,6 +58,7 @@
 			import dom from "/static/scripts/dom.js";
 			import fileJS from "/static/scripts/file.js";
 
+			const urlVariables = fileJS.GetURLParams();
 			const tagsElement = document.getElementById("tags");
 			const cloudElement = document.getElementById("cloud");
 
@@ -72,20 +73,45 @@
 
 			const fileFetch = await fileJS.FetchJSON("/files");
 
-			fileFetch.files.forEach((file) => {
-				const decodedFileName = fileJS.Decode64(file.name);
+			// Decode file fields
 
-				const fileTags = [];
+			fileFetch.files.forEach((file) => {
+				file.name = fileJS.Decode64(file.name);
+			});
+
+			// If there is a search active; Filter out files not matching it
+
+			const search = urlVariables.search;
+			if (search != undefined) {
+				fileFetch.files = fileFetch.files.filter((file) => {
+					const match = file.name.includes(search);
+					return match;
+				});
+			}
+
+			// Build the files to the dom
+
+			fileFetch.files.forEach((file) => {
+				const fileDomTags = [];
 				file.tags.forEach((tag) => {
-					fileTags.push(domTags[tag]);
+					fileDomTags.push(domTags[tag]);
 				});
 
 				const item = new dom.File(
 					file.id,
-					[decodedFileName, new Date(file.uploaded).toLocaleString()],
-					fileTags
+					[file.name, new Date(file.uploaded).toLocaleString()],
+					fileDomTags
 				);
 				item.MakeDom(cloudElement);
+			});
+
+			const searchElement = document.getElementById("search");
+			if (search != undefined) searchElement.value = search;
+			searchElement.addEventListener("keypress", (e) => {
+				if (e.key == "Enter") {
+					event.preventDefault();
+					location.assign(`?search=${e.target.value}`);
+				}
 			});
 
 			const tagExplore = document.getElementById("tagExplore");
