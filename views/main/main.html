@@ -11,7 +11,7 @@
 			<div class="vflex gap16">
 				<button>
 					<div class="hflex cvflex gap8">
-						<img src="/static/icons/search.svg"/>
+						<img src="/static/icons/search.svg" />
 						<input class="fill" type="search" placeholder="Search" />
 					</div>
 				</button>
@@ -22,20 +22,24 @@
 					<button id="more"></button>
 				</div>
 			</div>
-			
+
 			<h2 class="center">Files</h2>
 			<div class="vflex cvflex gap16">
-				<button id="upload" class="hflex cvflex gap8" onclick="location.assign('new')">
-					<img src="/static/icons/upload.svg"/>
+				<button
+					id="upload"
+					class="hflex cvflex gap8"
+					onclick="location.assign('new')"
+				>
+					<img src="/static/icons/upload.svg" />
 					<p>Upload</p>
 				</button>
 				<div class="hflex wflex jflex gap8">
 					<button id="download" class="hflex cvflex gap8">
-						<img src="/static/icons/download.svg"/>
+						<img src="/static/icons/download.svg" />
 						<p>Download Selected</p>
 					</button>
 					<button id="remove" class="hflex cvflex gap8">
-						<img src="/static/icons/delete.svg"/>
+						<img src="/static/icons/delete.svg" />
 						<p>Delete Selected</p>
 					</button>
 					<button id="deselect">Deselect</button>
@@ -54,71 +58,77 @@
 			import dom from "/static/scripts/dom.js";
 			import fileJS from "/static/scripts/file.js";
 
-			const tags = await fileJS.FetchJSON("/tags")
-			tags.forEach((tag) => {
-				const item = new dom.Tag(
-					tag.name,
-					tag.color
-				)
-				item.MakeDom("tags")
-			})
+			const tagsElement = document.getElementById("tags");
+			const cloudElement = document.getElementById("cloud");
 
-			const data = await fileJS.FetchJSON("/getPage")
+			const domTags = {};
+			const tagFetch = await fileJS.FetchJSON("/tags");
+			tagFetch.tags.forEach((tag) => {
+				const domTag = new dom.Tag(tag.id, tag.name, tag.color);
+				domTags[tag.id] = domTag;
 
-			data.forEach(elem => {
-				fileJS.DecodeObj64(elem.user)
+				domTag.MakeDom(tagsElement);
+			});
+
+			const fileFetch = await fileJS.FetchJSON("/files");
+
+			fileFetch.files.forEach((file) => {
+				const decodedFileName = fileJS.Decode64(file.name);
+
+				const fileTags = [];
+				file.tags.forEach((tag) => {
+					fileTags.push(domTags[tag]);
+				});
+
 				const item = new dom.File(
-					elem.id,
-					[
-						elem.user.name,
-						new Date(elem.uploaded).toLocaleString()
-					],
-					[]
+					file.id,
+					[decodedFileName, new Date(file.uploaded).toLocaleString()],
+					fileTags
 				);
-				item.MakeDom("cloud");
+				item.MakeDom(cloudElement);
 			});
 
-			const tagExplore = document.getElementById("tagExplore")
-			const moreButton = document.getElementById("more")
-			const closeAttribute = "closed"
+			const tagExplore = document.getElementById("tagExplore");
+			const moreButton = document.getElementById("more");
+			const closeAttribute = "closed";
 			moreButton.addEventListener("click", () => {
-				const isClosed = tagExplore.getAttribute(closeAttribute)
+				const isClosed = tagExplore.getAttribute(closeAttribute);
 				if (isClosed == undefined) {
-					tagExplore.setAttribute(closeAttribute, "")
-					return
+					tagExplore.setAttribute(closeAttribute, "");
+					return;
 				}
-				tagExplore.removeAttribute(closeAttribute)
+				tagExplore.removeAttribute(closeAttribute);
 			});
 
-			const deselect = document.getElementById("deselect")
+			const deselect = document.getElementById("deselect");
 			deselect.addEventListener("click", () => {
 				for (const [key, value] of Object.entries(dom.selected)) {
-					value.Deselect()
+					value.Deselect();
 				}
-			})
-			const download = document.getElementById("download")
+			});
+			const download = document.getElementById("download");
 			download.addEventListener("click", async () => {
 				for await (const [key, value] of Object.entries(dom.selected)) {
-					value.Download()
+					value.Download();
 				}
-			})
-			const remove = document.getElementById("remove")
+			});
+			const remove = document.getElementById("remove");
 			remove.addEventListener("click", async () => {
-				const names = []
+				const names = [];
 				const data = {
-					ids: []
-				}
+					ids: [],
+				};
 				for (const [key, value] of Object.entries(dom.selected)) {
-					data.ids.push(key)
-					names.push(value.props[0])
+					data.ids.push(key);
+					names.push(value.props[0]);
 				}
 
 				if (confirm(`Do you want to remove the files: ${names.join(", ")}?`)) {
-					const deleteString = JSON.stringify(data)
-					fileJS.FetchSendJSON("/dodel", deleteString)
+					const deleteString = JSON.stringify(data);
+					fileJS.FetchJSON("/deleteFile", deleteString);
 					location.reload();
 				}
-			})
+			});
 		</script>
 	</body>
 </html>

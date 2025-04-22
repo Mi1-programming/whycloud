@@ -1,34 +1,38 @@
 import fileJS from "/static/scripts/file.js";
-import colorJS from "/static/scripts/color.js"
+import colorJS from "/static/scripts/color.js";
 
 const selected = {};
 
 class DomElement {
-	MakeDom(parentId) {
-		alert("Not implemented")
+	MakeDom(parent) {
+		alert("Not implemented");
 	}
 }
 class Tag extends DomElement {
-	constructor(name, color) {
+	constructor(id, name, color) {
 		super();
+		this.id = id;
 		this.name = name;
 		this.color = color;
 	}
-	MakeDom(parentId) {
-		const parent = document.getElementById(parentId);
+	MakeDom(parent) {
 		const newButton = document.createElement("button");
 		newButton.classList = "tag";
-		const hexColor = `#${this.color}`
+		const hexColor = `#${this.color}`;
 		newButton.style.backgroundColor = hexColor;
 		newButton.style.outlineColor = hexColor;
-		
-		const foregroundColor = colorJS.GetForeground("#F0F0D7", "#3D3D3D", this.color)
-		newButton.style.color = foregroundColor
+
+		const foregroundColor = colorJS.GetForeground(
+			"#F0F0D7",
+			"#3D3D3D",
+			this.color
+		);
+		newButton.style.color = foregroundColor;
 		newButton.innerText = this.name;
 
-		parent.appendChild(newButton)
+		parent.appendChild(newButton);
 
-		return newButton
+		return newButton;
 	}
 }
 class File extends DomElement {
@@ -39,8 +43,7 @@ class File extends DomElement {
 		this.tags = tags;
 		this.row = undefined;
 	}
-	MakeDom(parentId) {
-		const parent = document.getElementById(parentId);
+	MakeDom(parent) {
 		const newRow = document.createElement("tr");
 		newRow.classList = "fileRow";
 
@@ -63,20 +66,17 @@ class File extends DomElement {
 		const tagsColumnTd = document.createElement("td");
 		const tagsColumnDiv = document.createElement("div");
 		tagsColumnTd.appendChild(tagsColumnDiv);
-		tagsColumnDiv.classList = "hflex gap4";
+		tagsColumnDiv.classList = "hflex";
 
-		this.tags.forEach((elem) => {
-			const tagButton = document.createElement("button");
-			tagButton.innerText = elem;
-			tagButton.classList = "tag";
-			tagsColumnDiv.appendChild(tagButton);
-		});
 		const tagManageButton = document.createElement("button");
 		tagManageButton.innerText = "+";
 		tagsColumnDiv.appendChild(tagManageButton);
 		tagManageButton.addEventListener("click", () => {
-			location.assign(`tag?id=${this.id}`)
-		})
+			location.assign(`tag?id=${this.id}`);
+		});
+		this.tags.forEach((tag) => {
+			tag.MakeDom(tagsColumnDiv);
+		});
 
 		newRow.appendChild(tagsColumnTd);
 
@@ -94,7 +94,7 @@ class File extends DomElement {
 			this.Deselect();
 		});
 
-		return newRow
+		return newRow;
 	}
 	Select() {
 		this.row.classList.add("select");

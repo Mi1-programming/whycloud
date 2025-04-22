@@ -5,60 +5,69 @@
 		<link rel="stylesheet" href="static/main.css" />
 	</head>
 	<body>
-        <div class="vflex cvflex gap16">
-            <h1>Choose Your Tags</h1>
-            <div id="tags"></div>
-            <div class="hflex gap8">
-                <button id="apply">Apply</button>
-                <button id="backButton">Back</button>
-            </div>
-        </div>
+		<div class="vflex cvflex gap16">
+			<h1>Choose Your Tags</h1>
+			<div id="tags"></div>
+			<div class="hflex gap8">
+				<button id="apply">Apply</button>
+				<button id="backButton">Back</button>
+			</div>
+		</div>
 		<script type="module">
-            import dom from "/static/scripts/dom.js";
-            import fileJS from "/static/scripts/file.js";
+			import dom from "/static/scripts/dom.js";
+			import fileJS from "/static/scripts/file.js";
 
-            const tagged = {}
+			const urlVariables = fileJS.GetURLParams();
+			const tagged = {};
 
-            const backButton = document.getElementById("backButton")
-            backButton.addEventListener("click", () => {
-                location.assign("..")
-            })
+			const backButton = document.getElementById("backButton");
+			backButton.addEventListener("click", () => {
+				location.assign("..");
+			});
 
-            const apply = document.getElementById("apply")
-            apply.addEventListener("click", () => {
-                const urlVariables = fileJS.GetURLParams()
+			const apply = document.getElementById("apply");
+			apply.addEventListener("click", () => {
+				const itemTags = [];
+				for (const [key, value] of Object.entries(tagged)) {
+					itemTags.push(value.id);
+				}
 
-                const itemTags = []
-                for (const [key, value] of Object.entries(tagged)) {
-                    itemTags.push(value.id)
-                }
+				const sendData = {
+					id: urlVariables.id,
+					tags: itemTags,
+				};
+				const sendJson = JSON.stringify(sendData);
+				fileJS.FetchJSON("/setTags", sendJson);
+			});
 
-                console.log(itemTags)
+			const tagFetch = await fileJS.FetchJSON("/tags");
+			const tags = document.getElementById("tags");
+			const selectClass = "choose";
 
-                const sendData = {
-                    id: urlVariables.id,
-                    tags: itemTags
-                }
-                fileJS.FetchSendJSON("/dotag", urlVariables)
-                //location.assign("..")
-            })
-            
-			const tags = await fileJS.FetchJSON("/tags")
-			tags.forEach((tag) => {
-				const item = new dom.Tag(
-					tag.name,
-					tag.color
-				)
-				const newTag = item.MakeDom("tags")
-                newTag.addEventListener("click", () => {
-                    if (tagged[item.id] == undefined)
-                        tagged[item.id] = item
-                    else
-                        delete tagged[item.id]
+			function SelectTag(domItem, item) {
+				tagged[item.id] = item;
+				domItem.classList.add(selectClass);
+			}
+			function DeselectTag(domItem, item) {
+				delete tagged[item.id];
+				domItem.classList.remove(selectClass);
+			}
+			function ToggleTag(domItem, item) {
+				if (tagged[item.id] == undefined) SelectTag(domItem, item);
+				else DeselectTag(domItem, item);
+			}
 
-                    newTag.classList.toggle("choose")
-                })
-			})
+			tagFetch.tags.forEach((tag) => {
+				const item = new dom.Tag(tag.id, tag.name, tag.color);
+				const newTag = item.MakeDom(tags);
+
+				const ticked = tag.files.includes(urlVariables.id);
+				if (ticked) SelectTag(newTag, item);
+
+				newTag.addEventListener("click", () => {
+					ToggleTag(newTag, item);
+				});
+			});
 		</script>
 	</body>
 </html>
