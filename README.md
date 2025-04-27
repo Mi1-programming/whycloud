@@ -12,13 +12,14 @@ The frontend of Whycloud is built within the browser using pure JavaScript, and 
 
 ## Features
 
-* Uploading files
-* Downloading files
-* Viewing files
-* Removing files
-* Tagging files
+* Uploading
+* Downloading file(s)
+* Viewing
+* Removing file(s)
+* Applying tags
 * Filtering by name
 * Filtering by tag
+* Selecting file(s)
 
 ## Missing features
 
