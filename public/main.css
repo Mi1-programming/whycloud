@@ -72,6 +72,9 @@ td, tr {
 .gap32 {
     gap: 32px;
 }
+.pad4 {
+    padding: 4px;
+}
 .pad8 {
     padding: 8px;
 }
@@ -130,21 +133,24 @@ td, tr {
     margin: 2px;
     padding-inline: 8px;
 }
+.tag.select::after {
+    content: " ✓";
+}
 .tag:hover {
     background-color: red;
     outline: red 2px solid;
 }
 
-.fileRow:hover {
+.file:hover {
     background-color: #D0DDD0;
 }
-.select {
+.file.select {
     background-color: #AAB99A !important;
 }
-.cross {
+.check {
     text-align: center;
     width: 32px;
 }
-.choose::after, .select .cross::after {
+.file.select .check::after {
     content: " ✓";
 }

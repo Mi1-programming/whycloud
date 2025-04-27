@@ -39,10 +39,6 @@ async function ReadJSON(name) {
 	const parsed = JSON.parse(data);
 	return parsed;
 }
-function Respond(res, responseObject) {
-	const responseString = JSON.stringify(responseObject);
-	res.send(responseString);
-}
 
 // Navigation pages
 
@@ -82,6 +78,7 @@ app.post("/setTags", async (req, res) => {
 					return;
 				}
 
+				console.log(tagJsonData);
 				const parsedTag = JSON.parse(tagJsonData);
 
 				const index = parsedTag.files.indexOf(req.body.id);
@@ -131,9 +128,7 @@ app.post("/setTags", async (req, res) => {
 
 	// Now it should be easy to unking the object when files or tags are deleted
 
-	Respond(res, {
-		redirectTo: "/",
-	});
+	res.send({});
 });
 app.post("/files", async (req, res) => {
 	const data = {
@@ -149,21 +144,18 @@ app.post("/files", async (req, res) => {
 				tags: readData.tags,
 			});
 		}
-		Respond(res, {
-			parameters: data,
-		});
+		res.send(data);
 	});
 });
 app.post("/download", async (req, res) => {
 	const readData = await ReadJSON(
 		fileDirectory.GetFilePathWithExtension(req.body.id, "json")
 	);
-	Respond(res, {
-		parameters: {
-			name: readData.name,
-			data: readData.data,
-		},
-	});
+	const sendData = {
+		name: readData.name,
+		data: readData.data,
+	};
+	res.send(sendData);
 });
 app.post("/tags", async (req, res) => {
 	tagDirectory.ReadDirectory(async (err, files) => {
@@ -179,18 +171,55 @@ app.post("/tags", async (req, res) => {
 				files: readData.files,
 			});
 		}
-		Respond(res, {
-			parameters: data,
-		});
+		res.send(data);
 	});
 });
-app.post("/deleteFile", (req, res) => {
-	// TODO: Handle removing references from tags
-	req.body.ids.forEach((id) => {
-		fs.unlink(fileDirectory.GetFilePathWithExtension(id, "json"), () => {
-			res.end();
+app.post("/deleteFile", async (req, res) => {
+	// TO CONSIDER IN THE FUTURE:
+	/*
+		A better approach would be to first find which tags need to be altered for ALL files, and
+		just rewrite those.
+		Our current approach loops through the deleted files, and
+		rewrites all tag JSON files in the files tag list. This can lead to rewriting the same file
+		multiple times wasting resources
+	*/
+
+	for (const id of req.body.ids) {
+		const fileJson = fileDirectory.GetFilePathWithExtension(id, "json");
+		fs.readFile(fileJson, "ascii", (err, fileJsonData) => {
+			if (err) {
+				console.error(err);
+				return;
+			}
+			const parsedFileData = JSON.parse(fileJsonData);
+
+			for (const tagId of parsedFileData.tags) {
+				const tagJson = tagDirectory.GetFilePathWithExtension(tagId, "json");
+				fs.readFile(tagJson, "ascii", (err, tagJsonData) => {
+					if (err) {
+						console.error(err);
+						return;
+					}
+
+					const parsedTagData = JSON.parse(tagJsonData);
+					parsedTagData.files = parsedTagData.files.filter((file) => {
+						const hasFile = req.body.ids.includes(file);
+						return !hasFile;
+					});
+
+					const newStringData = JSON.stringify(parsedTagData);
+
+					fs.writeFile(tagJson, newStringData, { flag: "w" }, (err) => {
+						if (err) console.error(err);
+					});
+				});
+			}
 		});
-	});
+		fs.unlink(fileDirectory.GetFilePathWithExtension(id, "json"), (err) => {
+			if (err) console.log(err);
+		});
+	}
+	res.send({});
 });
 app.post("/newFile", async (req, res) => {
 	await fs.readFile(cloudIds, "ascii", (err, idData) => {
@@ -228,7 +257,7 @@ app.post("/newFile", async (req, res) => {
 		});
 	});
 	console.log("Added!");
-	res.end();
+	res.send({});
 });
 
 app.listen(port, () => {

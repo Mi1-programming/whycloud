@@ -33,12 +33,7 @@ async function FetchJSON(url, body, method = "POST") {
 	const text = await res.text();
 	const parsed = JSON.parse(text);
 
-	if (parsed.redirectTo != undefined) {
-		window.location.href = parsed.redirectTo;
-	}
-
-	const parameters = parsed.parameters;
-	return parameters;
+	return parsed;
 }
 export default {
 	BytesToBase64,

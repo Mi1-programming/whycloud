@@ -1,19 +1,44 @@
 import fileJS from "/static/scripts/file.js";
 import colorJS from "/static/scripts/color.js";
 
-const selected = {};
-
 class DomElement {
-	MakeDom(parent) {
-		alert("Not implemented");
+	constructor(id) {
+		this.id = id;
+		this.elements = [];
+	}
+	MakeDom(parent) {}
+}
+class SelectableDomElement extends DomElement {
+	constructor(id, selected) {
+		super(id);
+		this.selected = selected;
+	}
+	Select() {
+		this.elements.forEach((element) => {
+			element.classList.add("select");
+		});
+		this.selected[this.id] = this;
+	}
+	Deselect() {
+		this.elements.forEach((element) => {
+			element.classList.remove("select");
+		});
+		delete this.selected[this.id];
+	}
+	Toggle() {
+		if (this.selected[this.id] == undefined) {
+			this.Select();
+			return;
+		}
+		this.Deselect();
 	}
 }
-class Tag extends DomElement {
-	constructor(id, name, color) {
-		super();
-		this.id = id;
+class Tag extends SelectableDomElement {
+	constructor(id, selected, name, color, clickEvent) {
+		super(id, selected);
 		this.name = name;
 		this.color = color;
+		this.clickEvent = clickEvent;
 	}
 	MakeDom(parent) {
 		const newButton = document.createElement("button");
@@ -30,30 +55,36 @@ class Tag extends DomElement {
 		newButton.style.color = foregroundColor;
 		newButton.innerText = this.name;
 
+		newButton.addEventListener("click", (e) => {
+			if (this.clickEvent != undefined) this.clickEvent();
+			e.stopPropagation();
+		});
+
 		parent.appendChild(newButton);
 
+		this.elements.push(newButton);
 		return newButton;
 	}
 }
-class File extends DomElement {
-	constructor(id, props, tags) {
-		super();
-		this.id = id;
+class File extends SelectableDomElement {
+	constructor(id, selected, props, tags) {
+		super(id, selected);
 		this.props = props;
 		this.tags = tags;
-		this.row = undefined;
 	}
 	MakeDom(parent) {
 		const newRow = document.createElement("tr");
-		newRow.classList = "fileRow";
+		newRow.classList = "file";
 
 		parent.appendChild(newRow);
 
-		// NAME, UPLOADED
+		// Make the checkmark for the selected items
 
 		const cross = document.createElement("td");
-		cross.classList = "cross";
+		cross.classList = "check";
 		newRow.appendChild(cross);
+
+		// Make the properties
 
 		this.props.forEach((elem) => {
 			const newColumn = document.createElement("td");
@@ -61,48 +92,36 @@ class File extends DomElement {
 			newRow.appendChild(newColumn);
 		});
 
-		// TAGS
+		// Make the tags column
 
 		const tagsColumnTd = document.createElement("td");
 		const tagsColumnDiv = document.createElement("div");
 		tagsColumnTd.appendChild(tagsColumnDiv);
 		tagsColumnDiv.classList = "hflex";
 
+		// Make the tag manage button
+
 		const tagManageButton = document.createElement("button");
 		tagManageButton.innerText = "+";
 		tagsColumnDiv.appendChild(tagManageButton);
-		tagManageButton.addEventListener("click", () => {
+		tagManageButton.addEventListener("click", (e) => {
 			location.assign(`tag?id=${this.id}`);
+			e.stopPropagation();
 		});
+
+		// Make the tags
+
 		this.tags.forEach((tag) => {
 			tag.MakeDom(tagsColumnDiv);
 		});
 
 		newRow.appendChild(tagsColumnTd);
-
-		// SELECTING
-
-		this.row = newRow;
-		if (selected[this.id] != undefined) {
-			this.row.classList.add("select");
-		}
-		this.row.addEventListener("click", () => {
-			if (selected[this.id] == undefined) {
-				this.Select();
-				return;
-			}
-			this.Deselect();
+		newRow.addEventListener("click", () => {
+			this.Toggle();
 		});
 
+		this.elements.push(newRow);
 		return newRow;
-	}
-	Select() {
-		this.row.classList.add("select");
-		selected[this.id] = this;
-	}
-	Deselect() {
-		this.row.classList.remove("select");
-		delete selected[this.id];
 	}
 	async Download() {
 		const data = {
@@ -114,6 +133,8 @@ class File extends DomElement {
 
 		const fileData = fileJS.Base64ToBytes(res.data);
 		const name = fileJS.Decode64(res.name);
+
+		// Click to download
 
 		const link = document.createElement("a");
 		document.body.appendChild(link);
@@ -128,7 +149,6 @@ class File extends DomElement {
 	}
 }
 export default {
-	File,
 	Tag,
-	selected,
+	File,
 };

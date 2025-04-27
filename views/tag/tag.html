@@ -17,18 +17,29 @@
 			import dom from "/static/scripts/dom.js";
 			import fileJS from "/static/scripts/file.js";
 
+			const selected = {};
 			const urlVariables = fileJS.GetURLParams();
-			const tagged = {};
 
-			const backButton = document.getElementById("backButton");
-			backButton.addEventListener("click", () => {
-				location.assign("..");
+			const tagFetch = await fileJS.FetchJSON("/tags");
+			const tags = document.getElementById("tags");
+			tagFetch.tags.forEach((tag) => {
+				// Build tags in the DOM
+				const item = new dom.Tag(tag.id, selected, tag.name, tag.color);
+				item.clickEvent = () => {
+					item.Toggle();
+				};
+				item.MakeDom(tags);
+
+				// Preselect tags previosly selected when loading the page
+				const ticked = tag.files.includes(urlVariables.id);
+				if (ticked) item.Select();
 			});
 
 			const apply = document.getElementById("apply");
-			apply.addEventListener("click", () => {
+			apply.addEventListener("click", async () => {
+				// Convert "selected" to an array instead of an object
 				const itemTags = [];
-				for (const [key, value] of Object.entries(tagged)) {
+				for (const [key, value] of Object.entries(selected)) {
 					itemTags.push(value.id);
 				}
 
@@ -37,36 +48,17 @@
 					tags: itemTags,
 				};
 				const sendJson = JSON.stringify(sendData);
-				fileJS.FetchJSON("/setTags", sendJson);
+
+				// Upload changes
+				const fetchedData = await fileJS.FetchJSON("/setTags", sendJson);
+
+				// Go back to the last page, and refresh
+				location.assign(document.referrer);
 			});
 
-			const tagFetch = await fileJS.FetchJSON("/tags");
-			const tags = document.getElementById("tags");
-			const selectClass = "choose";
-
-			function SelectTag(domItem, item) {
-				tagged[item.id] = item;
-				domItem.classList.add(selectClass);
-			}
-			function DeselectTag(domItem, item) {
-				delete tagged[item.id];
-				domItem.classList.remove(selectClass);
-			}
-			function ToggleTag(domItem, item) {
-				if (tagged[item.id] == undefined) SelectTag(domItem, item);
-				else DeselectTag(domItem, item);
-			}
-
-			tagFetch.tags.forEach((tag) => {
-				const item = new dom.Tag(tag.id, tag.name, tag.color);
-				const newTag = item.MakeDom(tags);
-
-				const ticked = tag.files.includes(urlVariables.id);
-				if (ticked) SelectTag(newTag, item);
-
-				newTag.addEventListener("click", () => {
-					ToggleTag(newTag, item);
-				});
+			const backButton = document.getElementById("backButton");
+			backButton.addEventListener("click", () => {
+				history.back();
 			});
 		</script>
 	</body>

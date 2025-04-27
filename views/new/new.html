@@ -5,26 +5,34 @@
 		<link rel="stylesheet" href="static/main.css" />
 	</head>
 	<body>
-		<div class="vflex gap16">
+		<div class="vflex cvflex gap16">
+			<h1>Upload a File</h1>
 			<div class="hflex gap8">
 				<label for="upload">File</label>
-				<input id="upload" type="file" />
+				<input id="upload" class="pad4" type="file" />
 			</div>
 			<div class="hflex gap8">
 				<button id="submit">Upload</button>
-				<button onclick="location.assign('..')">Cancel</button>
+				<button id="back">Back</button>
 			</div>
 		</div>
 		<script type="module">
 			import fileJS from "/static/scripts/file.js";
 
-			const submit = document.getElementById("submit");
 			const upload = document.getElementById("upload");
-
+			const submit = document.getElementById("submit");
 			submit.addEventListener("click", (e) => {
 				const file = upload.files[0];
+
+				if (file == undefined) {
+					console.warn("Uploaded file was undefined");
+					return;
+				}
+
+				// Reading the data of the uploaded file into base64
+
 				const reader = new FileReader();
-				reader.onload = (e) => {
+				reader.onload = async (e) => {
 					const encodedName = fileJS.Encode64(file.name);
 					const body = {
 						name: encodedName,
@@ -36,11 +44,19 @@
 
 					const strBody = JSON.stringify(body);
 
-					fileJS.FetchJSON("/newFile", strBody);
+					// Upload the file
+					await fileJS.FetchJSON("/newFile", strBody);
 
-					location.assign("..");
+					// Go back to the previos page, and refresh
+					location.assign(document.referrer);
 				};
 				reader.readAsArrayBuffer(file);
+			});
+
+			const back = document.getElementById("back");
+			back.addEventListener("click", () => {
+				// Go back to the previos page
+				history.back();
 			});
 		</script>
 	</body>

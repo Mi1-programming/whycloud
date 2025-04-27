@@ -58,16 +58,68 @@
 			import dom from "/static/scripts/dom.js";
 			import fileJS from "/static/scripts/file.js";
 
+			const selectedFiles = {};
+			const selectedTags = {};
+			const domTags = {};
+
 			const urlVariables = fileJS.GetURLParams();
 			const tagsElement = document.getElementById("tags");
 			const cloudElement = document.getElementById("cloud");
 
-			const domTags = {};
 			const tagFetch = await fileJS.FetchJSON("/tags");
 			tagFetch.tags.forEach((tag) => {
-				const domTag = new dom.Tag(tag.id, tag.name, tag.color);
-				domTags[tag.id] = domTag;
+				const domTag = new dom.Tag(
+					tag.id,
+					selectedTags,
+					tag.name,
+					tag.color,
 
+					// When we click. We want to toggle this tag in the URL
+					() => {
+						const newTagSearch = [];
+
+						// Add previously selected tags to the array
+
+						for (const key in selectedTags) {
+							newTagSearch.push(key);
+						}
+
+						// Toggle the new tag
+
+						const tagIndex = newTagSearch.indexOf(tag.id.toString());
+						if (tagIndex == -1) {
+							newTagSearch.push(tag.id);
+						} else {
+							newTagSearch.splice(tagIndex, 1);
+						}
+
+						// Building the URL
+
+						const parameters = new URLSearchParams();
+
+						// Start with the current URL variables
+
+						for (const [key, value] of Object.entries(urlVariables)) {
+							parameters.append(key, value);
+						}
+
+						// Rebuild the tag property
+
+						if (newTagSearch.length == 0) {
+							parameters.delete("tag");
+						} else {
+							const tagString = newTagSearch.join(",");
+							parameters.set("tag", tagString);
+						}
+
+						// Navigate to the new URL
+
+						const stringParameters = parameters.toString();
+						location.assign(`../?${stringParameters}`);
+					}
+				);
+
+				domTags[tag.id] = domTag;
 				domTag.MakeDom(tagsElement);
 			});
 
@@ -79,12 +131,33 @@
 				file.name = fileJS.Decode64(file.name);
 			});
 
+			// If there are active tag filters; Filter out files not mathing *ALL* tags
+
+			let numberFilterTags = [];
+			const filterTags = urlVariables.tag;
+			if (filterTags != undefined) {
+				// Extract an array of numbers from a URL variable
+				const parsedFilterTags = filterTags.split(",");
+				numberFilterTags = parsedFilterTags.map((tag) => parseInt(tag));
+
+				fileFetch.files = fileFetch.files.filter((file) => {
+					for (const tagId of numberFilterTags) {
+						const match = file.tags.includes(tagId);
+						if (match) continue;
+						return false;
+					}
+					return true;
+				});
+			}
+
 			// If there is a search active; Filter out files not matching it
 
 			const search = urlVariables.search;
 			if (search != undefined) {
+				const lowerSearch = search.toLowerCase();
 				fileFetch.files = fileFetch.files.filter((file) => {
-					const match = file.name.includes(search);
+					const lowerName = file.name.toLowerCase();
+					const match = lowerName.includes(lowerSearch);
 					return match;
 				});
 			}
@@ -93,16 +166,24 @@
 
 			fileFetch.files.forEach((file) => {
 				const fileDomTags = [];
-				file.tags.forEach((tag) => {
-					fileDomTags.push(domTags[tag]);
+				file.tags.forEach((tagId) => {
+					fileDomTags.push(domTags[tagId]);
 				});
 
 				const item = new dom.File(
 					file.id,
+					selectedFiles,
 					[file.name, new Date(file.uploaded).toLocaleString()],
 					fileDomTags
 				);
 				item.MakeDom(cloudElement);
+			});
+
+			// Select tags described in the URL
+
+			numberFilterTags.forEach((tagId) => {
+				const domTag = domTags[tagId];
+				domTag.Select();
 			});
 
 			const searchElement = document.getElementById("search");
@@ -110,7 +191,29 @@
 			searchElement.addEventListener("keypress", (e) => {
 				if (e.key == "Enter") {
 					event.preventDefault();
-					location.assign(`?search=${e.target.value}`);
+
+					// Building a new URL
+
+					const parameters = new URLSearchParams();
+
+					// Start with the previous parameters
+
+					for (const [key, value] of Object.entries(urlVariables)) {
+						parameters.append(key, value);
+					}
+
+					// Rebuild the serach parameter
+
+					if (e.target.value == "") {
+						parameters.delete("search");
+					} else {
+						parameters.set("search", e.target.value);
+					}
+
+					// Navigate to the new URL
+
+					const stringParameters = parameters.toString();
+					location.assign(`../?${stringParameters}`);
 				}
 			});
 
@@ -128,23 +231,25 @@
 
 			const deselect = document.getElementById("deselect");
 			deselect.addEventListener("click", () => {
-				for (const [key, value] of Object.entries(dom.selected)) {
+				for (const [key, value] of Object.entries(selectedFiles)) {
 					value.Deselect();
 				}
 			});
+
 			const download = document.getElementById("download");
 			download.addEventListener("click", async () => {
-				for await (const [key, value] of Object.entries(dom.selected)) {
+				for await (const [key, value] of Object.entries(selectedFiles)) {
 					value.Download();
 				}
 			});
+
 			const remove = document.getElementById("remove");
 			remove.addEventListener("click", async () => {
 				const names = [];
 				const data = {
 					ids: [],
 				};
-				for (const [key, value] of Object.entries(dom.selected)) {
+				for (const [key, value] of Object.entries(selectedFiles)) {
 					data.ids.push(key);
 					names.push(value.props[0]);
 				}
