@@ -6,6 +6,13 @@ Whycloud is a locally hosted browser based cloud software, which uses tags for f
 
 The frontend of Whycloud is built within the browser using pure JavaScript, and the backend is made using Node.js (express)
 
+## Starting
+
+To run the server navigate to the project's folder and run
+```
+node server.js
+```
+
 ## Images
 
 ![alt text](https://github.com/Mi1-programming/whycloud/blob/master/whycloud.png "Image of UI")
